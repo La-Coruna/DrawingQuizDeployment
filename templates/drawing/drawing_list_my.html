@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'drawing/css/drawing_list.css' %}">
+{% endblock %}
+{% block content %}
+{% include "drawing/_drawing_list_common.html" with heading=user.username|add:"님의 그림" show_author=False %}
+{% endblock %}

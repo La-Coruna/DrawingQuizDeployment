@@ -1,0 +1,143 @@
+.draw-app {
+  --bg: #0b0f14;
+  --text: #e8eef7;
+  --muted: #9fb0c8;
+  --accent: #4ea1ff;
+  --danger: #ff5e7c;
+  --ok: #67d391;
+  --shadow: 0 8px 20px rgba(0,0,0,.3);
+  height: calc(100vh - 56px); /* 네비게이션 높이 56px 빼주려고 */
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: linear-gradient(180deg, #0b0f14, #0a0e13 30%, #0b0f14);
+  color: var(--text);
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+}
+
+/* 🖼 상단 메타 툴바 */
+.draw-app .meta-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+  padding: 10px 20px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.draw-app .meta-toolbar .left-group,
+.draw-app .meta-toolbar .right-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.draw-app .meta-input {
+  background: #202b3a;
+  border: none;
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 180px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+.draw-app .meta-input:focus {
+  outline: 1px solid var(--accent);
+}
+
+/* 🎨 하단 툴바 */
+.draw-app .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
+
+.draw-app .group {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 12px;
+  gap: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.draw-app label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.draw-app .btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text);
+  background: #202b3a;
+  transition: all .2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.draw-app .btn:hover { background: #2a3950; transform: translateY(-1px); }
+.draw-app .btn:active { transform: translateY(1px); }
+.draw-app .btn.primary { background: var(--accent); color: #041119; }
+.draw-app .btn.ok { background: var(--ok); color: #07130b; }
+.draw-app .btn.danger { background: var(--danger); color: #1c0a0d; }
+.draw-app .btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.draw-app input[type="color"],
+.draw-app input[type="range"],
+.draw-app input[type="checkbox"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* 캔버스 */
+.draw-app .canvas-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.draw-app canvas {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(0,0,0,.3);
+}
+
+/* 힌트 */
+.draw-app .hint {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(20,26,35,.9);
+  backdrop-filter: blur(6px);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #e8eef7;
+  box-shadow: var(--shadow);
+}
+.draw-app kbd {
+  background: #0d141d;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: monospace;
+}

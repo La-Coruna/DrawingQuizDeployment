@@ -1,0 +1,127 @@
+<div class="container my-4">
+    <!-- 제목 + 그리기 버튼 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">{{ heading }}</h3>
+
+        <!-- 새 그림 그리기 버튼 -->
+        <a href="{% url 'drawing:draw' %}" class="btn btn-primary">
+            ✏️ 그리기
+        </a>
+    </div>
+
+    {% if drawings %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% for d in drawings %}
+            <div class="col">
+                <div class="card shadow-sm h-100 drawing-card position-relative overflow-hidden">
+                    
+                    <!-- 🖼️ 이미지 -->
+                    <img src="/static/assets/images/drawing/{{ d.id }}.png"
+                         class="card-img-top"
+                         alt="{{ d.title }}">
+
+                    <!-- 그린 사람만 보는 버튼 -->
+                    {% if request.user == d.author %}
+                    <!-- 🌐 공개 토글 버튼 -->
+                    <button class="btn btn-outline-light btn-sm toggle-btn position-absolute top-0 start-0 m-2"
+                            data-id="{{ d.id }}"
+                            data-public="{{ d.is_public|yesno:'true,false' }}"
+                            onclick="togglePublic(this)">
+                        {% if d.is_public %}🌐{% else %}🔒{% endif %}
+                    </button>
+
+                    <!-- 삭제 버튼 (hover 시 표시) -->
+                    <button class="btn btn-danger btn-sm delete-btn position-absolute top-0 end-0 m-2"
+                            data-id="{{ d.id }}"
+                            onclick="confirmDelete({{ d.id }})">
+                        🗑
+                    </button>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">{{ d.title|default:"(제목 없음)" }}</h5>
+
+                        {% if d.subject %}
+                        <p class="card-text text-secondary small mb-2">🏷️ {{ d.subject }}</p>
+                        {% endif %}
+
+                        {% if show_author %}
+                        <p class="card-text text-muted small mb-1">👤 {{ d.author.username }}</p>
+                        {% endif %}
+
+                        <p class="card-text text-muted small">{{ d.created_at|date:"Y-m-d H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">아직 등록된 그림이 없습니다 🎨</div>
+    {% endif %}
+</div>
+
+<script>
+async function confirmDelete(id) {
+  if (!confirm("이 그림을 삭제하시겠습니까?")) return;
+
+  try {
+    const csrfToken = getCsrfToken();
+    const response = await fetch(`/drawing/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const data = await response.json();
+    if (data.success) {
+      alert("✅ 그림이 삭제되었습니다.");
+      // 해당 카드 제거
+      const card = document.querySelector(`[data-id="${id}"]`)?.closest('.col');
+      if (card) card.remove();
+    } else {
+      alert("❌ 삭제 실패: 서버 오류");
+    }
+  } catch (e) {
+    console.error(e);
+    alert("❌ 삭제 중 오류가 발생했습니다.");
+  }
+}
+
+// Django CSRF 토큰 가져오기 (쿠키 기반)
+function getCsrfToken() {
+  const name = 'csrftoken';
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+async function togglePublic(btn) {
+  const id = btn.dataset.id;
+  try {
+    const csrf = getCsrfToken();
+    const resp = await fetch(`/drawing/toggle-public/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+    });
+
+    if (!resp.ok) throw new Error("서버 오류");
+
+    const data = await resp.json();
+    if (data.success) {
+      if (data.is_public) {
+        btn.textContent = "🌐";
+        btn.classList.remove('btn-outline-light');
+        //btn.classList.add('btn-success');
+      } else {
+        btn.textContent = "🔒   ";
+        btn.classList.remove('btn-success');
+        //btn.classList.add('btn-outline-light');
+      }
+    }
+  } catch (e) {
+    console.error(e);
+    alert("❌ 공개 상태 변경 실패");
+  }
+}
+</script>

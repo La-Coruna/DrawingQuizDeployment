@@ -1,0 +1,51 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'quiz:index' %}">Drawing Quiz</a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- 왼쪽 메뉴 -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'quiz:index' %}">그림 퀴즈</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'drawing:drawing_list_my' %}">내 그림</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'drawing:drawing_list' %}">모두의 그림</a>
+                </li>
+            </ul>
+
+            <!-- 오른쪽 메뉴 -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <span class="navbar-text me-3">{{ user.username }}</span>
+                </li>
+                <li class="nav-item">
+                    <form action="{% url 'common:logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link btn btn-link p-0">로그아웃</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'common:login' %}">로그인</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'common:signup' %}">회원가입</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

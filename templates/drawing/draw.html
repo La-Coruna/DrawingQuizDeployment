@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'drawing/css/draw.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="draw-app container-fluid p-0">
+
+  <!-- 🖼 상단 메타 툴바 -->
+
+
+  <!-- 기존 header는 toolbar로 대체 -->
+  <header style="background: #121821; box-shadow: 0 10px 30px rgba(0,0,0,.35); position: sticky; top: 0; z-index: 10;">
+    <div class="toolbar d-flex flex-wrap align-items-center gap-2 p-2" style="background: #121821;">
+      <div class="group d-flex align-items-center bg-dark p-2 rounded-3 shadow-sm">
+        <button class="btn btn-sm btn-outline-light" id="penBtn" title="브러시 (B)">✏️</button>
+        <button class="btn btn-sm btn-outline-light" id="eraserBtn" title="지우개 (E)">🧽</button>
+        <span class="mx-2 text-secondary">|</span>
+        <label for="color" class="form-label text-light mb-0 small">색상</label>
+        <input type="color" id="color" value="#4ea1ff" class="form-control form-control-color me-2">
+        <label for="size" class="form-label text-light mb-0 small">굵기</label>
+        <input id="size" type="range" min="1" max="64" value="10" class="form-range me-2" style="width:100px;">
+        <label for="opacity" class="form-label text-light mb-0 small">불투명</label>
+        <input id="opacity" type="range" min="0.05" max="1" step="0.05" value="1" class="form-range me-2"
+          style="width:100px;">
+        <label for="bgcolor" class="form-label text-light mb-0 small">배경</label>
+        <input type="color" id="bgcolor" value="#ffffff" class="form-control form-control-color me-2">
+        <label for="bgInclude" class="form-check-label text-light small">저장 포함</label>
+        <input type="checkbox" id="bgInclude" class="form-check-input" checked>
+      </div>
+
+      <div class="group d-flex align-items-center bg-dark p-2 rounded-3 shadow-sm">
+        <label class="form-label text-light mb-0 small me-1">크기</label>
+        <button class="btn btn-sm btn-outline-light" id="fitBtn" title="창 맞춤">창 맞춤</button>
+        <button class="btn btn-sm btn-outline-light" id="squareBtn" title="정사각형 고정">정사각형</button>
+        <button class="btn ok" style="display:none" id="gridBtn" title="격자 토글 (G)"># 격자</button>
+      </div>
+
+      <div class="group d-flex align-items-center bg-dark p-2 rounded-3 shadow-sm">
+        <button class="btn btn-sm btn-outline-secondary" id="undoBtn" title="실행 취소">↶</button>
+        <button class="btn btn-sm btn-outline-secondary" id="redoBtn" title="다시 실행">↷</button>
+        <button class="btn btn-sm btn-danger" id="clearBtn" title="전체 지우기">🗑</button>
+
+        <input id="uploadUrl" type="hidden" value="/drawing/create">
+      </div>
+
+
+      <div class="group">
+        <label for="subject" class="form-label">주제</label>
+        <input type="text" class="meta-input" id="subject" value="{{ random_topic }}">
+        <button id="refreshTopicBtn" class="btn ghost ms-2">🎲</button>
+      </div>
+
+      <div class="group right">
+        <button class="btn ok" id="saveBtn" title="PNG 저장">💾</button>
+        <button class="btn primary" id="uploadBtn" title="서버 업로드">⬆</button>
+      </div>
+
+    </div>
+  </header>
+
+
+
+  <main class="canvas-wrap d-flex justify-content-center align-items-center position-relative flex-grow-1" id="stage"
+    style="background:#0b0f14;">
+    <canvas id="board" style="background:white; display:block;"></canvas>
+    <div class="grid position-absolute top-0 start-0 w-100 h-100" id="grid" style="pointer-events:none;"></div>
+  </main>
+
+  <div class="hint position-fixed bottom-0 end-0 m-3 p-2 bg-dark small rounded">
+    <kbd>Ctrl</kbd>+<kbd>Z</kbd> 되돌리기 ·
+    <kbd>B</kbd> 브러시 · <kbd>E</kbd> 지우개 ·
+    <kbd>Ctrl</kbd>+<kbd>S</kbd> 업로드
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'drawing/js/draw.js' %}" ></script>
+{% endblock %}

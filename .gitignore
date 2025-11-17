@@ -1,0 +1,23 @@
+# Drawing
+static/assets/images/drawing
+
+# Python
+*.pyc
+__pycache__/
+*.log
+
+# Django
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+static_root/
+*/migrations/*
+
+# Virtual Environment
+venv/
+.env/
+
+# IDE specific files
+.idea/
+.vscode/

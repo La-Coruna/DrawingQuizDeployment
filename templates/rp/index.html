@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎄 크리스마스 롤링페이퍼</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* 눈 내리는 효과 */
+      body {
+        background: linear-gradient(to bottom, #ffefef, #fff);
+        overflow-x: hidden;
+      }
+      .snow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background-image: url('https://i.imgur.com/ocK7J6x.png');
+        animation: snow 10s linear infinite;
+      }
+      @keyframes snow {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 1000px; }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col items-center justify-start py-12 px-4">
+
+    <!-- 눈 내리는 배경 -->
+    <div class="snow"></div>
+
+    <!-- 헤더 -->
+    <header class="z-10 text-center mb-10">
+      <h1 class="text-5xl font-bold text-red-600 drop-shadow-lg mb-2">
+        🎄 Merry Christmas 🎄
+      </h1>
+      <p class="text-lg text-green-700 font-medium">
+        친구들에게 따뜻한 메시지를 남겨보세요!
+      </p>
+    </header>
+
+    <!-- 메시지 카드 리스트 -->
+    <main class="z-10 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-md hover:scale-105 transition">
+        <p class="text-gray-700 mb-2">행복한 연말 보내 🎅</p>
+        <p class="text-sm text-gray-500 text-right">- 은빈</p>
+      </div>
+
+      <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-md hover:scale-105 transition">
+        <p class="text-gray-700 mb-2">항상 고마워! 따뜻한 크리스마스 보내 ❤️</p>
+        <p class="text-sm text-gray-500 text-right">- 종윤</p>
+      </div>
+
+      <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-md hover:scale-105 transition">
+        <p class="text-gray-700 mb-2">눈 오는 날 같이 산책하고 싶다 ☃️</p>
+        <p class="text-sm text-gray-500 text-right">- 지원</p>
+      </div>
+    </main>
+
+    <!-- 메시지 추가 버튼 -->
+    <div class="z-10 text-center">
+      <button
+        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-full shadow-lg transition transform hover:scale-110">
+        ✨ 새 메시지 남기기
+      </button>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="z-10 mt-10 text-center text-sm text-gray-500">
+      <p>© 2025 Christmas RollingPaper | Made with ❤️</p>
+    </footer>
+
+  </body>
+</html>
