@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: django-service
 spec:
-  type: NodePort # 테스트를 위해 NodePort 사용
+  type: ClusterIP # 테스트를 위해 NodePort 사용
   selector:
     app: django
   ports:
