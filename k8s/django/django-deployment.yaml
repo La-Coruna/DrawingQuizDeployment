@@ -1,54 +1,55 @@
-# django-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: django-app
-  labels:
-    app: django
 spec:
-  replicas: 1 # 일단 1개로 시작
+  replicas: 1
   selector:
     matchLabels:
-      app: django
+      app: django-app
   template:
     metadata:
       labels:
-        app: django
+        app: django-app
     spec:
       containers:
-      - name: django
-        image: lacoruna/drawingquiz:latest # 사용자의 이미지로 교체하세요
-        ports:
-        - containerPort: 8000 # Django 기본 포트
-        env:
-          - name: SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: SECRET_KEY
-          # PostgreSQL 접속 정보
-          - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: DB_NAME
-          - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: DB_USER
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: DB_PASSWORD
-          - name: POSTGRES_HOST
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: DB_HOST
-          - name: POSTGRES_PORT
-            valueFrom:
-              secretKeyRef:
-                name: django-secret
-                key: DB_PORT
+        - name: django-app
+          image: lacoruna/drawingquiz:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: DB_HOST
+
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: DB_NAME
+
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: DB_USER
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: DB_PASSWORD
+
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: DB_PORT
+
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: SECRET_KEY
