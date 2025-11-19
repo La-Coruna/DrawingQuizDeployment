@@ -6,7 +6,7 @@ metadata:
   labels:
     app: django
 spec:
-  replicas: 1 # 일단 1개로 시작
+  replicas: 2 # 일단 1개로 시작
   selector:
     matchLabels:
       app: django
