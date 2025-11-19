@@ -7,7 +7,8 @@ spec:
     storage: 5Gi
   accessModes:
     - ReadWriteOnce
+  storageClassName: nfs-storage
   persistentVolumeReclaimPolicy: Retain
   nfs:
     path: /srv/nfs/k8s
-    server: 192.168.56.21   # kube-node1의 실제 IP 주소
+    server: 192.168.56.21   # kube-node1의 실제 IP
