@@ -1,4 +1,5 @@
 # StatefulSet이 postgresql에 접근하도록 해주는 서비스
+# StatefulSet 내부 DNS 관리용 (headless)
 apiVersion: v1
 kind: Service
 metadata:
