@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: django
-        image: your-registry/django-app:latest # 사용자의 이미지로 교체하세요
+        image: lacoruna/drawingquiz:latest # 사용자의 이미지로 교체하세요
         ports:
         - containerPort: 8000 # Django 기본 포트
         env:
