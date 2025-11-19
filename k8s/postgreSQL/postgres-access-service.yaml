@@ -1,0 +1,13 @@
+# django가 postgresql에 접근할 수 있도록
+# postgres-access → 외부 접근용 (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-access
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
