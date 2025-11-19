@@ -4,7 +4,7 @@ metadata:
   name: nginx-volume-04	
 spec:	
   nodeSelector:	
-    kubernetes.io/hostname: myserver02	
+    kubernetes.io/hostname: kube-node1
   containers:	
   - name: nginx-test01	
     image: nginx:latest	
