@@ -10,9 +10,6 @@ pipeline {
     stages {
 
         stage('Checkout App Repo') {
-            when {
-                changeset "${APP_REPO}" 
-            }
             steps {
                 git branch: 'main', url: "${APP_REPO}"
             }
