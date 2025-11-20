@@ -52,7 +52,7 @@ pipeline {
             steps {
                 dir('infra') {
 
-                    deleteDir()
+                    // deleteDir()
 
                     withCredentials([usernamePassword(
                         credentialsId: 'github-token',
