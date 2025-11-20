@@ -52,8 +52,8 @@ pipeline {
             steps {
                 dir('infra') {
 
-                    // ⭐ Manifest Repo clone (Token 방식)
                     deleteDir()
+
                     withCredentials([usernamePassword(
                         credentialsId: 'github-token',
                         usernameVariable: 'GH_USER',
@@ -64,12 +64,11 @@ pipeline {
                         """
                     }
 
-                    // YAML 파일 내 이미지 태그 업데이트
+                    // 🔥 정확한 파일명 + 이미지 경로로 치환
                     sh """
-                    sed -i 's#image: ${REGISTRY}:.*#image: ${IMAGE}#' app/deployment.yaml
+                    sed -i "s#image: .*drawingquiz:.*#image: ${IMAGE}#" app/django-deployment.yaml
                     """
 
-                    // Commit & Push (Token 방식)
                     withCredentials([usernamePassword(
                         credentialsId: 'github-token',
                         usernameVariable: 'GH_USER',
