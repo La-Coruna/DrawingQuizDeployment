@@ -17,7 +17,7 @@ idioms = [
     "청출어람", "칠전팔기"
 ]
 
-fruits = ['딸기']
+fruits = ['포도']
 
 _TOPICS = fruits
 
