@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_REPO = "https://github.com/La-Coruna/DrawingQuizDeployment.git"
-        INFRA_REPO = "https://github.com/La-Coruna/DrawingQuiz-Infra.git"   // 🚀 GitOps Repo
+        INFRA_REPO = "https://github.com/La-Coruna/DrawingQuiz-Infra.git"   // 🚀 GitOps Manifest Repo
         REGISTRY = "docker.io/lacoruna/drawingquiz"
     }
 
@@ -18,7 +18,6 @@ pipeline {
         stage('Determine Image Tag') {
             steps {
                 script {
-                    // git commit hash를 태그로 사용
                     TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     IMAGE = "${REGISTRY}:${TAG}"
                     echo "Image Tag: ${IMAGE}"
@@ -49,25 +48,42 @@ pipeline {
             }
         }
 
-        stage('Update Manifest Repo') {   // 🚀 핵심 부분
+        stage('Update Manifest Repo') {
             steps {
                 dir('infra') {
-                    // Manifest repo clone
-                    git url: "${INFRA_REPO}", branch: 'main', credentialsId: 'github-ssh'
 
-                    // deployment.yaml 의 image 값을 새 태그로 치환
+                    // ⭐ Manifest Repo clone (Token 방식)
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-token',
+                        usernameVariable: 'GH_USER',
+                        passwordVariable: 'GH_TOKEN'
+                    )]) {
+                        sh """
+                        git clone https://${GH_USER}:${GH_TOKEN}@github.com/La-Coruna/DrawingQuiz-Infra.git .
+                        """
+                    }
+
+                    // YAML 파일 내 이미지 태그 업데이트
                     sh """
                     sed -i 's#image: ${REGISTRY}:.*#image: ${IMAGE}#' app/deployment.yaml
                     """
 
-                    // Git commit & push
-                    sh """
-                    git config user.email "jenkins@ci.com"
-                    git config user.name "Jenkins CI"
-                    git add .
-                    git commit -m "Update image to ${IMAGE}"
-                    git push origin main
-                    """
+                    // Commit & Push (Token 방식)
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-token',
+                        usernameVariable: 'GH_USER',
+                        passwordVariable: 'GH_TOKEN'
+                    )]) {
+                        sh """
+                        git config user.email "jenkins@ci.com"
+                        git config user.name "Jenkins CI"
+
+                        git add .
+                        git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
+
+                        git push https://${GH_USER}:${GH_TOKEN}@github.com/La-Coruna/DrawingQuiz-Infra.git main
+                        """
+                    }
                 }
             }
         }
