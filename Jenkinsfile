@@ -2,22 +2,34 @@ pipeline {
     agent any
 
     environment {
+        APP_REPO = "https://github.com/La-Coruna/DrawingQuizDeployment.git"
+        INFRA_REPO = "https://github.com/La-Coruna/DrawingQuiz-Infra.git"   // 🚀 GitOps Repo
         REGISTRY = "docker.io/lacoruna/drawingquiz"
-        TAG = "latest"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout App Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/La-Coruna/DrawingQuizDeployment.git'
+                git branch: 'main', url: "${APP_REPO}"
+            }
+        }
+
+        stage('Determine Image Tag') {
+            steps {
+                script {
+                    // git commit hash를 태그로 사용
+                    TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    IMAGE = "${REGISTRY}:${TAG}"
+                    echo "Image Tag: ${IMAGE}"
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
                 sh """
-                docker build -t $REGISTRY:$TAG .
+                docker build -t ${IMAGE} .
                 """
             }
         }
@@ -31,7 +43,30 @@ pipeline {
                 )]) {
                     sh """
                     echo $PASS | docker login -u $USER --password-stdin
-                    docker push $REGISTRY:$TAG
+                    docker push ${IMAGE}
+                    """
+                }
+            }
+        }
+
+        stage('Update Manifest Repo') {   // 🚀 핵심 부분
+            steps {
+                dir('infra') {
+                    // Manifest repo clone
+                    git url: "${INFRA_REPO}", branch: 'main', credentialsId: 'github-ssh'
+
+                    // deployment.yaml 의 image 값을 새 태그로 치환
+                    sh """
+                    sed -i 's#image: ${REGISTRY}:.*#image: ${IMAGE}#' app/deployment.yaml
+                    """
+
+                    // Git commit & push
+                    sh """
+                    git config user.email "jenkins@ci.com"
+                    git config user.name "Jenkins CI"
+                    git add .
+                    git commit -m "Update image to ${IMAGE}"
+                    git push origin main
                     """
                 }
             }
@@ -40,7 +75,7 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Docker Image Build & Push Success!"
+            echo "🎉 Docker Build, Push, GitOps Repo Update 완료!"
         }
         failure {
             echo "❌ Build Failed!"
