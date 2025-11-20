@@ -17,7 +17,9 @@ idioms = [
     "청출어람", "칠전팔기"
 ]
 
-_TOPICS = animals
+fruits = ['딸기']
+
+_TOPICS = fruits
 
 def get_random_topic():
     """주제 하나를 무작위로 반환"""
