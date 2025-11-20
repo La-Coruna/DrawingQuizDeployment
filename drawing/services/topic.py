@@ -17,7 +17,7 @@ idioms = [
     "청출어람", "칠전팔기"
 ]
 
-_TOPICS = idioms
+_TOPICS = animals
 
 def get_random_topic():
     """주제 하나를 무작위로 반환"""
