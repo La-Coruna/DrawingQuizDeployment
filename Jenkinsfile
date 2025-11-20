@@ -53,6 +53,7 @@ pipeline {
                 dir('infra') {
 
                     // ⭐ Manifest Repo clone (Token 방식)
+                    deleteDir()
                     withCredentials([usernamePassword(
                         credentialsId: 'github-token',
                         usernameVariable: 'GH_USER',
