@@ -82,8 +82,9 @@ pipeline {
 
                         // 🔥 이미지 태그 치환
                         sh """
-                        sed -i "s|image: ${DOCKERHUB_ID}/${IMAGE_NAME}:.*|image: ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG}|g" app/django-deployment.yaml
+                        sed -i "s|image:.*drawingquiz.*|image: ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG}|g" app/django-deployment.yaml
                         """
+
 
                         // 🔥 Git config 설정
                         sh """
