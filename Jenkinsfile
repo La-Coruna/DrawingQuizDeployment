@@ -2,84 +2,99 @@ pipeline {
     agent any
 
     environment {
-        APP_REPO = "https://github.com/La-Coruna/DrawingQuizDeployment.git"
-        INFRA_REPO = "https://github.com/La-Coruna/DrawingQuiz-Infra.git"   // 🚀 GitOps Manifest Repo
-        REGISTRY = "docker.io/lacoruna/drawingquiz"
+        // 🔥 너의 정보
+        DOCKERHUB_ID   = 'lacoruna'
+        IMAGE_NAME     = 'drawingquiz'
+        IMAGE_TAG      = "build-${env.BUILD_NUMBER}"
+
+        // 🔥 GitOps Manifest Repo (HTTPS 사용)
+        MANIFEST_REPO  = "https://github.com/La-Coruna/DrawingQuiz-Infra.git"
     }
 
     stages {
 
-        stage('Checkout App Repo') {
+        stage('Checkout Source') {
             steps {
-                git branch: 'main', url: "${APP_REPO}"
+                checkout scm
             }
         }
 
-        stage('Determine Image Tag') {
+        stage('Set up Python & Collect static') {
             steps {
-                script {
-                    TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    IMAGE = "${REGISTRY}:${TAG}"
-                    echo "Image Tag: ${IMAGE}"
-                }
+                sh """
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --no-cache-dir -r requirements.txt
+                python manage.py collectstatic --noinput
+                """
             }
         }
 
         stage('Docker Build') {
             steps {
                 sh """
-                docker build -t ${IMAGE} .
+                docker build -t ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG} .
+                docker tag ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_ID}/${IMAGE_NAME}:latest
                 """
             }
         }
 
-        stage('Docker Login & Push') {
+        stage('DockerHub Login & Push') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
+                    credentialsId: 'dockerhub',       // 🔥 DockerHub 크리덴셜
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
-                    echo $PASS | docker login -u $USER --password-stdin
-                    docker push ${IMAGE}
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG}
+                    docker push ${DOCKERHUB_ID}/${IMAGE_NAME}:latest
                     """
                 }
             }
         }
 
-        stage('Update Manifest Repo') {
+        stage('Cleanup Local Images') {
             steps {
-                dir('infra') {
+                sh """
+                docker rmi ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG} || true
+                docker rmi ${DOCKERHUB_ID}/${IMAGE_NAME}:latest || true
+                """
+            }
+        }
 
-                    // deleteDir()
+        stage('Update K8S Manifest Repo') {
+            steps {
+                dir('infra-repo') {
+                    deleteDir()
 
+                    // 🔥 GitHub Token 인증을 통한 clone
                     withCredentials([usernamePassword(
-                        credentialsId: 'github-token',
+                        credentialsId: 'github-token', // 🔥 GitHub PAT 저장한 Jenkins Credential ID
                         usernameVariable: 'GH_USER',
                         passwordVariable: 'GH_TOKEN'
                     )]) {
+
                         sh """
                         git clone https://${GH_USER}:${GH_TOKEN}@github.com/La-Coruna/DrawingQuiz-Infra.git .
                         """
-                    }
 
-                    // 🔥 정확한 파일명 + 이미지 경로로 치환
-                    sh """
-                    sed -i "s#image: .*drawingquiz:.*#image: ${IMAGE}#" app/django-deployment.yaml
-                    """
+                        // 🔥 이미지 태그 치환
+                        sh """
+                        sed -i "s|image: ${DOCKERHUB_ID}/${IMAGE_NAME}:.*|image: ${DOCKERHUB_ID}/${IMAGE_NAME}:${IMAGE_TAG}|g" app/django-deployment.yaml
+                        """
 
-                    withCredentials([usernamePassword(
-                        credentialsId: 'github-token',
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )]) {
+                        // 🔥 Git config 설정
                         sh """
                         git config user.email "jenkins@ci.com"
                         git config user.name "Jenkins CI"
+                        """
 
-                        git add .
-                        git commit -m "Update image to ${IMAGE}" || echo "No changes to commit"
+                        // 🔥 Commit & Push
+                        sh """
+                        git add app/django-deployment.yaml
+                        git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
 
                         git push https://${GH_USER}:${GH_TOKEN}@github.com/La-Coruna/DrawingQuiz-Infra.git main
                         """
@@ -90,11 +105,7 @@ pipeline {
     }
 
     post {
-        success {
-            echo "🎉 Docker Build, Push, GitOps Repo Update 완료!"
-        }
-        failure {
-            echo "❌ Build Failed!"
-        }
+        success { echo "🎉 SUCCESS: Build + Image Push + Manifest Updated" }
+        failure { echo "❌ BUILD FAILED" }
     }
 }
